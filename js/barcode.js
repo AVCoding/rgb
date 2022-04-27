@@ -1,4 +1,4 @@
-﻿
+
 // async function enumDevices() {
 //   let result = [];
 //   const devices = await navigator.mediaDevices.enumerateDevices();
@@ -149,17 +149,17 @@ class Capturer {
       let barcode = null;
 
       ////////// Filter part
-      var imageData;
-      var contextFilter = canvas.getContext('2d');
-      imageData = contextFilter.getImageData(0, 0, canvas.width, canvas.height);
-      for (var i = 0; i < imageData.data.length; i += 4) {
-        //Brown Filter
-        if (data[i] > 125 ) {
-           data[i] = 255;
-           data[i + 1] = 255;
-           data[i + 2] = 255;
-        }
-      }
+      // var imageData;
+      // var contextFilter = canvas.getContext('2d');
+      // imageData = contextFilter.getImageData(0, 0, canvas.width, canvas.height);
+      // for (var i = 0; i < imageData.data.length; i += 4) {
+      //   //Brown Filter
+      //   if (data[i] > 125 ) {
+      //      data[i] = 255;
+      //      data[i + 1] = 255;
+      //      data[i + 2] = 255;
+      //   }
+      // }
 
 
       /////////////////////////////////////
@@ -168,6 +168,20 @@ class Capturer {
         ////////// Filter part
 
         try {
+
+          var imageData;
+          var contextFilter = canvas.getContext('2d');
+          imageData = contextFilter.getImageData(0, 0, canvas.width, canvas.height);
+          for (var i = 0; i < imageData.data.length; i += 4) {
+            //Brown Filter
+            if (data[i] > 125 ) {
+               data[i] = 255;
+               data[i + 1] = 255;
+               data[i + 2] = 255;
+            }
+          }
+
+          
           const barcodeDetector = new BarcodeDetector();
           const barcodes = await barcodeDetector.detect(imageData);
           if (barcodes && barcodes.length) {
