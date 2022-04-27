@@ -174,10 +174,10 @@ class Capturer {
           imageData = contextFilter.getImageData(0, 0, canvas.width, canvas.height);
           for (var i = 0; i < imageData.data.length; i += 4) {
             //Brown Filter
-            if (data[i] > 125 ) {
-               data[i] = 255;
-               data[i + 1] = 255;
-               data[i + 2] = 255;
+            if (imageData.data[i] > 125 ) {
+               imageData.data[i] = 255;
+               imageData.data[i + 1] = 255;
+               imageData.data[i + 2] = 255;
             }
           }
 
