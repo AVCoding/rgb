@@ -183,7 +183,7 @@ class Capturer {
 
           
           const barcodeDetector = new BarcodeDetector();
-          const barcodes = await barcodeDetector.detect(imageData);
+          const barcodes = await barcodeDetector.detect(imageData.data);
           if (barcodes && barcodes.length) {
             barcode = barcodes[0];
             result = {
