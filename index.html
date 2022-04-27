@@ -1,0 +1,450 @@
+﻿<!DOCTYPE html>
+<script runat="server"></script>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+
+  <title>Отправления</title>
+  <link rel="icon" type="image/png" href="img/favicon.png?3" />
+  <link rel="icon" type="image/x-icon" href="img/favicon.ico?3" /> 
+  <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico" /> 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous" />
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+      font-family: "Roboto";
+    }
+
+    @font-face {
+      font-family: "Roboto";
+      src: url("fonts/Roboto/roboto.eot");
+      src: url("fonts/Roboto/roboto.ttf") format("truetype"),
+      url("fonts/Roboto/roboto.eot?#iefix") format("embedded-opentype"),
+      url("fonts/Roboto/roboto.otf") format("opentype"),
+      url("fonts/Roboto/roboto.svg") format("svg"),
+      url("fonts/Roboto/roboto.woff") format("woff"),
+      url("fonts/Roboto/roboto.woff2") format("woff2");
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .m-fixed-overlay {
+      position: fixed;
+      overflow: auto;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.4);
+      z-index: 50000;
+    }
+    
+    .m-fixed-overlay__modal {
+      text-align: center;
+      white-space: nowrap;
+    }
+    
+    .m-fixed-overlay__modal::after {
+      display: inline-block;
+      vertical-align: middle;
+      width: 0;
+      height: 100%;
+      content: '';
+    }
+    
+    .m-modal {
+      display: inline-block;
+      vertical-align: middle;
+    }
+    
+    .m-modal_container {
+      margin: 50px;
+      padding: 20px;
+      text-align: left;
+      white-space: normal;
+      background-color: #fff;
+      border-radius: 4px;
+      color: #000;
+    }    
+
+    .m-modal_container div {
+      margin-bottom: .4em;      
+    }   
+    
+
+    #video-wrapper {
+      position: fixed;
+      display: flex;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      justify-content: center;
+      align-items: center;   
+      background-color: #444;
+      display: none;
+      z-index: 10;
+    }
+    
+    #video {
+      display: inline-block;
+    }          
+    
+    #canvas {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+    
+    #camera-grid {
+      border-collapse: collapse;
+      border: none;
+      position: absolute;
+      /*
+      top: 0;
+      left: 0;
+      */
+      width: 100%;
+      height: 100%;
+    }       
+    
+    .transparent {
+      background-color: #222;
+      opacity: .7;
+    }
+    
+    #barcode-rect {
+      position: relative;
+    }
+    
+    .bracket {
+      position: absolute;
+      width: 1.5vh;
+      height: 1.5vh;
+      border: 2px solid #aaa;
+      box-sizing: content-box;
+      z-index: 11;
+    }
+    
+    .bracket.left {
+      left: -1px;
+      border-right: none;
+    }
+
+    .bracket.top {
+      top: -1px;
+      border-bottom: none;
+    }
+    
+    .bracket.right {
+      right: -1px;
+      border-left: none;
+    }
+
+    .bracket.bottom {
+      bottom: -1px;
+      border-top: none;
+    }
+
+    #close-button {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      color: #fff;
+    }
+
+    #date-wrapper {
+      display: inline-block;
+    }
+
+
+    /*input::-webkit-input-placeholder { display: none; color: #ccc !important; }*/
+
+    input::-webkit-datetime-edit { padding: 0; margin: 0; }
+    input::-webkit-datetime-edit-text { padding: 0; margin: 0; }
+    input::-webkit-calendar-picker-indicator { padding: 0; margin: 0; }
+    input::-webkit-inner-spin-button { display: none; }
+
+    input#date::-webkit-datetime-edit { max-width: 5rem; }
+
+
+  </style>
+</head>
+<body>
+  
+  <!--
+  <div class="fa-3x" style="color: #ccc;"><i class="fas fa-cog fa-spin"></i></div>  
+  <div class="spinner-border" style="width: 3rem; height: 3rem; color: #ccc;" role="status"></div>
+  -->
+
+  <div id="video-wrapper">
+    <video id="video"></video>
+    <table id="camera-grid">
+      <tbody>
+        <tr style="height: 47%;">
+          <td colspan="3" class="transparent">
+            <div id="close-button" class="fa-2x"><i class="far fa-times-circle"></i></div> 
+
+            <div style="padding: .4rem; color: #fff; text-align: center;">
+              <div class="mb-4"><span class="status" style="font-size: 3em;">0/0</span></div>
+              <div id="warning-sign" class="fa-3x"><i class="fas fa-barcode"></i></div>
+
+              <div id="debug" style="padding: .4rem; color: #fff; display: none;"></div>
+            </div>
+            
+          </td>
+        </tr>
+        <tr>
+          <td class="transparent" style="width: 15%;"></td>
+          <td id="barcode-rect" style="width: 70%;">
+            <div class="bracket left top"></div>
+            <div class="bracket left bottom"></div>
+            <div class="bracket right top"></div>
+            <div class="bracket right bottom"></div>
+            <canvas id="canvas"></canvas>
+          </td>
+          <td class="transparent" style="width: 15%;"></td>
+        </tr>
+        <tr style="height: 47%;">
+          <td colspan="3" class="transparent"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="m-dialog" class="m-fixed-overlay m-fixed-overlay__modal">
+    <div class="m-modal">
+      <div class="m-modal_container">
+        <div style="text-align: center; margin-top: 1em;">
+          <!--
+          <div class="fa-3x" style="color: #ccc;"><i class="fas fa-cog fa-spin"></i></div> 
+          -->
+          <div class="spinner-border" style="width: 3rem; height: 3rem; color: #ccc;" role="status"></div>
+        </div>
+        <div><span style="color: #666;">Авторизация...</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!--
+    <div class="row" style="padding-top: .6rem;">
+      <div class="col-3">
+        <a href="/default.aspx" target="_self" style=""><img src="/img/logo-1.png" style="width: 3rem;" alt="Игрушка-ПЛЮС" /></a>
+      </div>
+      <div class="col-9 d-flex text-right align-items-center justify-content-end">
+        <div id="user" class="d-inline-block" style="color: #ad4f00; margin-right: .6rem;"></div>
+        <div class="fa-2x" style="color: rgba(255, 106, 0, 0.63); margin-right: .6rem;"><i class="fas fa-user-circle"></i></div>
+      </div>
+    </div>
+    -->
+
+    <div class="row pt-2">
+      <div class="col-3 d-flex align-items-center justify-content-start">
+        <div class="btn-group">
+          <button id="set-mode" class="d-none d-md-block btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Отправления</button>
+          <button id="set-mode-mobile" class="d-md-none btn-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: none;"><i class="fas fa-bars"></i></button>
+          <ul class="dropdown-menu dropdown-menu-dark">
+            <li><a class="dropdown-item mode disabled" href="#packaging">Комплектование</a></li>
+            <li><a class="dropdown-item mode" href="#shipment-out">Отгрузка OZON</a></li>
+            <li><a class="dropdown-item mode disabled" href="#shipment-in">Поставка</a></li>
+            <li><a class="dropdown-item mode disabled" href="#search-info">Информация</a></li>
+            <li><a class="dropdown-item" href="#camera-selection" data-bs-toggle="modal">Камера</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-7 d-flex text-right align-items-center justify-content-start" style="min-width: 11rem;">
+        <div id="date-wrapper" class="btn-toolbar ms-2 hidden" style="width: auto; display: inline-block; min-width: 10rem;">
+          <div class="btn-group" role="group">
+            <input id="date" type="date" class="form-control form-control-sm" style="width: auto;"/>
+          </div>
+          <div class="btn-group" role="group">
+            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown" style="padding: 0 .5rem 0 .5rem; border-radius: .2rem .2rem .2rem .2rem;"><i class="fas fa-ellipsis-v fa-sm"></i></button>
+            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" style="min-width: inherit;">
+              <li><a id="reload" class="dropdown-item" href="#"><i class="fas fa-sync-alt text-success"></i></a></li>
+              <li><a class="dropdown-item" href="#delete-confirmation" data-bs-toggle="modal"><i class="fas fa-trash-alt text-danger"></i></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-2 d-flex text-right align-items-center justify-content-end">
+        <button id="run-button" type="button" class="btn btn-secondary" disabled="disabled" style="padding: .2rem;">
+          <div style="color: #bbb;"><i class="fas fa-barcode fa-lg"></i></div>
+        </button>
+
+      </div>
+    </div>
+
+    <div id="content" class="row justify-content-center" style="margin-top: .6rem;">
+
+    </div>
+
+    <div class="modal fade" id="delete-confirmation" tabindex="-1" aria-labelledby="delete-confirmation-ModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="delete-confirmation-ModalLabel">Подтверждение</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">Очистить историю сканирования за <span class="date"></span>?</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+            <button id="clear" type="button" class="btn btn-danger" data-bs-dismiss="modal">Очистить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="camera-selection" tabindex="-1" aria-labelledby="camera-selection-ModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="camera-selection-ModalLabel">Выбор камеры</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <select id="cameras" class="form-select form-select-sm" aria-label=".form-select-sm example">
+            </select>            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+            <button id="set-camera" type="button" class="btn btn-success" data-bs-dismiss="modal">&nbsp;&nbsp;OK&nbsp;&nbsp;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+  <script src="js/barcode.js?1"></script>
+  <script src="js/zxing.js"></script>
+  <script>
+    let
+      user = "<%=userName%>",
+      userId = "<%=userId%>",
+      mode = $(location).attr("hash").substr(1),
+      date,
+      nonUser = false,
+      cameraId;
+      
+    window.dispatcher = new Dispatcher();
+
+    async function init(user) {
+      $("#m-dialog").hide();
+      if (user !== null) {
+        $("#user").text(user);
+      } else {
+        
+      }
+      if (mode) $("#run-button").removeAttr("disabled");
+      const cameras = await enumDevices();
+      for (let i in cameras) $("#cameras").append($("<option>", { value: cameras[i].deviceId, text: cameras[i].label }));
+      try {
+        cameraId = cameras.slice(-1)[0].deviceId;
+      } catch (e) {}
+      
+    }
+
+    async function enumDevices() {
+      let result = [];
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      for (let i in devices) {
+        let device = devices[i];
+        if (device.kind === "videoinput") {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { groupId: device.groupId } });
+            const track = await stream.getTracks()[0];
+            const caps = await track.getCapabilities();
+            if (caps.facingMode.indexOf("user") === -1) {
+              let label = device.label != "" ? device.label : "Camera " + i;
+              result.push({ label: label, deviceId: caps.deviceId });
+            }
+            stream.getTracks().forEach(track => track.stop());
+          } catch (e) {}
+        }
+      }
+      return result;
+    }
+
+    $(".dropdown-item.mode").click(function (event) {
+      $("#set-mode").text($(this).text());
+      $("#run-button").removeAttr("disabled");
+      mode = $(this).attr("href").substr(1);
+      dispatcher.SetMode(mode);
+      //event.preventDefault();
+    })
+      .filter("[href='#" + mode + "']")
+      .trigger("click");
+
+    if (user === "") {
+      fetch("/handlers/set-context.ashx?simple-auth=true&update-session=true", { method: "GET" })
+        .then(response => response.json())
+        .then(result => {
+          init(result.user);
+        })
+        .catch(error => {
+          init(null);
+        });
+    } else init(user);
+
+    $("#close-button").click(function () {
+      $("#video-wrapper").hide();
+      if (window.streamer) window.streamer.Stop();
+    });
+
+    $("#run-button").click(function () {
+      $("#video-wrapper").css("display", "flex");
+      window.streamer = new Streamer(cameraId);
+    });
+
+    $("#delete-confirmation").on("show.bs.modal", function () {
+      let date = $("#date").val();
+      $(".date").text(date.substr(8, 2) + "." + date.substr(5, 2) + "." + date.substr(0, 4));
+    });
+
+    $("#clear").click(function () {
+      let date = $("#date").val();
+      window.dispatcher.Clear(mode, date);
+      window.dispatcher.Load(mode, date);
+    });
+
+    $("#camera-selection").on("show.bs.modal", function () {
+      $("#cameras option[value='" + cameraId + "']").prop("selected", true);
+    });
+
+    $("#set-camera").click(function () {
+      cameraId = $("#cameras").val();
+    });
+
+    $("#reload").click(function () {
+      let date = $("#date").val();
+      window.dispatcher.Load(mode, date);
+      event.preventDefault();
+    });
+
+    $("#date").change(function () {
+      if (nonUser) return;
+      let date = $("#date").val();
+      window.dispatcher.SetDate(date);
+      window.dispatcher.Load(mode, date);
+    });
+
+
+
+  </script>
+
+</body>
+</html>
+
