@@ -167,32 +167,32 @@ class Capturer {
       while (true) {
         ////////// Filter part
 
-//         try {
+        try {
 
-//           var imageData;
-//           var contextFilter = canvas.getContext('2d');
-//           imageData = contextFilter.getImageData(0, 0, canvas.width, canvas.height);
-//           for (var i = 0; i < imageData.data.length; i += 4) {
-//             //Brown Filter
-//             if (imageData.data[i] > 125 ) {
-//                imageData.data[i] = 255;
-//                imageData.data[i + 1] = 255;
-//                imageData.data[i + 2] = 255;
-//             }
-//           }
+          var imageData;
+          var contextFilter = canvas.getContext('2d');
+          imageData = contextFilter.getImageData(0, 0, canvas.width, canvas.height);
+          for (var i = 0; i < imageData.data.length; i += 4) {
+            //Brown Filter
+            if (imageData.data[i] > 125 ) {
+               imageData.data[i] = 255;
+               imageData.data[i + 1] = 255;
+               imageData.data[i + 2] = 255;
+            }
+          }
 
           
-//           const barcodeDetector = new BarcodeDetector();
-//           const barcodes = await barcodeDetector.detect(imageData.data);
-//           if (barcodes && barcodes.length) {
-//             barcode = barcodes[0];
-//             result = {
-//               rawValue: barcode.rawValue.replace(/[^%\d]/g, ''),
-//               boundingBox: barcode.boundingBox,
-//               alg: "embedded"
-//             }
-//           }
-//         } catch (e) {} 
+          const barcodeDetector = new BarcodeDetector();
+          const barcodes = await barcodeDetector.detect(imageData.data);
+          if (barcodes && barcodes.length) {
+            barcode = barcodes[0];
+            result = {
+              rawValue: barcode.rawValue.replace(/[^%\d]/g, ''),
+              boundingBox: barcode.boundingBox,
+              alg: "embedded"
+            }
+          }
+        } catch (e) {} 
 
         /////////////////////////////////////
 
