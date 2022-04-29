@@ -217,6 +217,7 @@ class Capturer {
             }
           }
         } catch (e) {} 
+        if (result) break;
 
         /////////////////////////////////////
 
@@ -233,7 +234,7 @@ class Capturer {
 //           }
 //         } catch (e) {} 
 
-        if (result) break;
+//        if (result) break;
 
         const codeReader = new ZXing.BrowserMultiFormatReader();
         try {
