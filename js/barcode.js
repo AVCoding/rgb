@@ -220,18 +220,18 @@ class Capturer {
 
         /////////////////////////////////////
 
-        try {
-          const barcodeDetector = new BarcodeDetector();
-          const barcodes = await barcodeDetector.detect(canvas);
-          if (barcodes && barcodes.length) {
-            barcode = barcodes[0];
-            result = {
-              rawValue: barcode.rawValue.replace(/[^%\d]/g, ''),
-              boundingBox: barcode.boundingBox,
-              alg: "embedded"
-            }
-          }
-        } catch (e) {} 
+//         try {
+//           const barcodeDetector = new BarcodeDetector();
+//           const barcodes = await barcodeDetector.detect(canvas);
+//           if (barcodes && barcodes.length) {
+//             barcode = barcodes[0];
+//             result = {
+//               rawValue: barcode.rawValue.replace(/[^%\d]/g, ''),
+//               boundingBox: barcode.boundingBox,
+//               alg: "embedded"
+//             }
+//           }
+//         } catch (e) {} 
 
         if (result) break;
 
