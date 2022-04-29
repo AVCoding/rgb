@@ -216,7 +216,9 @@ class Capturer {
               alg: "embedded"
             }
           }
-        } catch (e) {} 
+        } catch (e) {
+          console.log(e);
+        } 
         if (result) break;
 
         /////////////////////////////////////
